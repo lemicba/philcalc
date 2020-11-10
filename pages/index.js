@@ -1,65 +1,88 @@
+import React,{useState} from 'react';
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import '../styles/Home.module.css'
+import { Layout, Menu, Breadcrumb, Row, Col } from 'antd';
 
-export default function Home() {
+const { Header, Content, Footer } = Layout;
+
+
+function Home({ dolarPrice }) {
+  const [currentSum,setCurrentSum]=useState(0);
+  const [setClear]=useState(false);
+  const [currentImp, setCurrentImp ] = useState(0);
+
+  let dolarHoy = (JSON.stringify(dolarPrice));
+  console.log(dolarHoy)
+
+  const AddImpuesto=(e)=>{
+    e.preventDefault();
+    let currentImp = document.querySelector('#num').value
+    let currentMoneda = document.querySelector('#moneda').value;
+
+    let imp 
+    if(currentMoneda === 'dolar'){
+    imp = parseFloat((currentImp * dolarHoy) * 1.64).toFixed(2);
+    } else {
+      imp = parseFloat(currentImp * 1.64).toFixed(2);
+    }
+    setCurrentImp(imp)
+  }
+
+  const Clear=(e)=>{
+    e.preventDefault();
+    console.log('sum:', currentSum);
+    document.querySelector('form').reset();
+    setClear(true);
+    setCurrentSum(0);
+  }
+
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout>
+    <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+      <div className="logo" />
+      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
+        <Menu.Item key="1">nav 1</Menu.Item>
+        <Menu.Item key="2">nav 2</Menu.Item>
+        <Menu.Item key="3">nav 3</Menu.Item>
+      </Menu>
+    </Header>
+    <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
+    <Row>
+    <Col span={12} offset={6}>
+      <div className="site-layout-background" style={{ padding: 24, minHeight: 380 }}>
+      <div className="App">
+      <div className="app-title">
+        <h1 className="holis">Calculadora<br/>Impuestos</h1>
+        Dolar a {dolarPrice}
+      </div>
+      <form> 
+            <label>Elegi tu moneda</label>
+            <select id="moneda" name="monedalist">
+              <option value="peso">Peso</option>
+              <option value="dolar">Dolar</option>
+            </select>
+            <input type="text" id="num" placeholder="enter a number" />
+            <button onClick={AddImpuesto}>Impuestos</button>
+            <button onClick={Clear}>Clear</button>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+            Result = {currentImp}
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      </form>
     </div>
-  )
+      </div>
+      </Col>
+    </Row>
+    </Content>
+    <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+  </Layout>
+  );
 }
+
+Home.getStaticProps = async (ctx) => {
+  const res = await fetch('https://criptoya.com/api/dolar/')
+  const json = await res.json()
+  return { dolarPrice: json.oficial }
+}
+
+export default Home;
