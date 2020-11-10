@@ -79,10 +79,10 @@ function Home({ dolarPrice }) {
   );
 }
 
-Home.getStaticProps = async (ctx) => {
+export default Home;
+
+export const getStaticProps = async (ctx) => {
   const res = await fetch('https://criptoya.com/api/dolar/')
   const json = await res.json()
-  return { dolarPrice: json.oficial }
+  return {props :{ dolarPrice: json.oficial }}
 }
-
-export default Home;
